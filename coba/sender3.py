@@ -1,7 +1,7 @@
 import socket
 import struct
 
-GROUP = "224.1.1.1"
+GROUP = "239.1.1.1"
 PORT = 5000
 
 sock = socket.socket(
@@ -10,27 +10,29 @@ sock = socket.socket(
     socket.IPPROTO_UDP
 )
 
-# ttl hanya LAN
-ttl = struct.pack("b",1)
-
+# TTL = hanya LAN
 sock.setsockopt(
     socket.IPPROTO_IP,
     socket.IP_MULTICAST_TTL,
-    ttl
+    struct.pack("b", 2)
+)
+
+# aktifkan loopback
+sock.setsockopt(
+    socket.IPPROTO_IP,
+    socket.IP_MULTICAST_LOOP,
+    1
 )
 
 print("Sender aktif")
 
 while True:
 
-    pesan=input("\nPesan: ")
-
-    if pesan=="exit":
-        break
+    msg = input("Pesan: ")
 
     sock.sendto(
-        pesan.encode(),
-        (GROUP,PORT)
+        msg.encode(),
+        (GROUP, PORT)
     )
 
     print("Terkirim")
