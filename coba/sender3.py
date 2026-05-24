@@ -1,33 +1,36 @@
 import socket
 import struct
 
-GROUP="224.1.1.1"
-PORT=5000
+GROUP = "224.1.1.1"
+PORT = 5000
 
-LOCAL_IP="192.168.1.11"
-
-sock=socket.socket(
+sock = socket.socket(
     socket.AF_INET,
-    socket.SOCK_DGRAM
+    socket.SOCK_DGRAM,
+    socket.IPPROTO_UDP
 )
+
+# ttl hanya LAN
+ttl = struct.pack("b",1)
 
 sock.setsockopt(
     socket.IPPROTO_IP,
     socket.IP_MULTICAST_TTL,
-    struct.pack("b",1)
+    ttl
 )
 
-sock.setsockopt(
-    socket.IPPROTO_IP,
-    socket.IP_MULTICAST_IF,
-    socket.inet_aton(LOCAL_IP)
-)
+print("Sender aktif")
 
 while True:
 
-    pesan=input("Pesan: ")
+    pesan=input("\nPesan: ")
+
+    if pesan=="exit":
+        break
 
     sock.sendto(
         pesan.encode(),
         (GROUP,PORT)
     )
+
+    print("Terkirim")
