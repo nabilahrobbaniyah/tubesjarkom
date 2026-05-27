@@ -1,35 +1,50 @@
 import socket
 import struct
 import os
+import time
 
-GROUP = "239.255.1.1"
-PORT = 5000
-BUFFER = 1024
+GROUP="239.255.1.1"
+PORT=5000
+BUFFER=1024
 
-sock = socket.socket(
+# GANTI DENGAN IP SENDER
+LOCAL_IP="192.168.137.1"
+
+sock=socket.socket(
     socket.AF_INET,
     socket.SOCK_DGRAM,
     socket.IPPROTO_UDP
 )
 
+# PAKSA INTERFACE
+sock.setsockopt(
+    socket.IPPROTO_IP,
+    socket.IP_MULTICAST_IF,
+    socket.inet_aton(LOCAL_IP)
+)
+
 sock.setsockopt(
     socket.IPPROTO_IP,
     socket.IP_MULTICAST_TTL,
-    struct.pack("b", 2)
+    struct.pack("b",2)
 )
 
-path = input(
-    "Masukkan path file: "
+path=input(
+    "Masukkan file: "
 )
 
-filename = os.path.basename(
+filename=os.path.basename(
     path
 )
 
 sock.sendto(
-    f"FILE:{filename}".encode(),
-    (GROUP, PORT)
+    (
+        "FILE:"+filename
+    ).encode(),
+    (GROUP,PORT)
 )
+
+time.sleep(1)
 
 with open(
     path,
@@ -38,7 +53,7 @@ with open(
 
     while True:
 
-        data = file.read(
+        data=file.read(
             BUFFER
         )
 
@@ -47,12 +62,18 @@ with open(
 
         sock.sendto(
             data,
-            (GROUP, PORT)
+            (GROUP,PORT)
+        )
+
+        time.sleep(
+            0.01
         )
 
 sock.sendto(
     b"EOF",
-    (GROUP, PORT)
+    (GROUP,PORT)
 )
 
-print("File berhasil dikirim")
+print(
+    "File terkirim"
+)
