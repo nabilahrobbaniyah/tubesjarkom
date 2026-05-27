@@ -1,8 +1,8 @@
 import socket
+import os
 
 PORT = 5000
-
-INTERFACE = "192.168.137.100"
+BUFFER = 1024
 
 BROADCAST = "192.168.137.255"
 
@@ -11,23 +11,49 @@ sock = socket.socket(
     socket.SOCK_DGRAM
 )
 
-sock.bind(
-    (INTERFACE,0)
-)
-
 sock.setsockopt(
     socket.SOL_SOCKET,
     socket.SO_BROADCAST,
     1
 )
 
-while True:
+path = input(
+    "Masukkan file: "
+)
 
-    msg=input()
+filename = os.path.basename(
+    path
+)
 
-    sock.sendto(
-        msg.encode(),
-        (BROADCAST,PORT)
-    )
+sock.sendto(
+    f"FILE:{filename}".encode(),
+    (BROADCAST, PORT)
+)
 
-    print("terkirim")
+with open(
+    path,
+    "rb"
+) as file:
+
+    while True:
+
+        data = file.read(
+            BUFFER
+        )
+
+        if not data:
+            break
+
+        sock.sendto(
+            data,
+            (BROADCAST, PORT)
+        )
+
+sock.sendto(
+    b"EOF",
+    (BROADCAST, PORT)
+)
+
+print(
+    "Broadcast selesai"
+)
